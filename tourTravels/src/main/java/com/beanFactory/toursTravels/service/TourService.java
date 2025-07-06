@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class TourService {
@@ -17,7 +18,7 @@ public class TourService {
         return repo.findAll();
     }
 
-    public Optional<Tour> getTourById(Long id){
+    public Optional<Tour> getTourById(UUID id){
         return repo.findById(id);
     }
 
@@ -29,11 +30,11 @@ public class TourService {
         return repo.saveAll(tours);
     }
 
-    public void deleteTourById(Long id){
+    public void deleteTourById(UUID id){
         repo.deleteById(id);
     }
 
-    public Optional<Tour> updateTour(Long id, Tour updatedTour){
+    public Optional<Tour> updateTour(UUID id, Tour updatedTour){
         return repo.findById(id).map(tour -> {
             tour.setName(updatedTour.getName());
             tour.setDescription(updatedTour.getDescription());

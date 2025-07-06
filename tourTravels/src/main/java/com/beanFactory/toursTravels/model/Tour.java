@@ -5,18 +5,32 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.util.UUID;
+
 @Entity
 public class Tour {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(generator = "UUID")
+    private UUID id;
     private String name;
     private String description;
     private double price;
     private int ticketsAvailable;
     private String additionalDetails;
 
-    public long getId() {
+    @Override
+    public String toString() {
+        return "Tour{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", ticketsAvailable=" + ticketsAvailable +
+                ", additionalDetails='" + additionalDetails + '\'' +
+                '}';
+    }
+
+    public UUID getId() {
         return id;
     }
     public String getName() {

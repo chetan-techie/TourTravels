@@ -5,15 +5,20 @@ import com.beanFactory.toursTravels.service.TourService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Logger;
 
 @RestController
 @CrossOrigin(origins = "*", methods = {RequestMethod.DELETE, RequestMethod.GET, RequestMethod.POST})
 public class TourController {
+
+    private Logger LOGGER = Logger.getLogger(TourController.class.getName());
 
     @Autowired
     private TourService tourService;
@@ -33,8 +38,18 @@ public class TourController {
         return new ResponseEntity<>(tourService.createTour(tour), HttpStatus.CREATED);
     }
 
+    @CrossOrigin(origins = "*")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/admin/addtours/")
+    public ResponseEntity<List<Tour>> addTours(@RequestBody List<Tour> tours){
+        LOGGER.info(tours.toString());
+        return new ResponseEntity<>(tourService.addMultipleTours(tours), HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "*")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/tours/{tourId}")
-    public ResponseEntity<String> deleteTour(@PathVariable Long tourId){
+    public ResponseEntity<String> deleteTour(@PathVariable UUID tourId){
         Optional<Tour> foundTour = tourService.getTourById(tourId);
         if(foundTour.isPresent()){
             tourService.deleteTourById(tourId);
@@ -43,6 +58,8 @@ public class TourController {
         return new ResponseEntity<String>("Tour not found to delete.", HttpStatus.NOT_FOUND);
     }
 
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/tour")
     public ResponseEntity<?> updateTour(@RequestBody Tour tour){
         Optional<Tour> foundTour = tourService.getTourById(tour.getId());

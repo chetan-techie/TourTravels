@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -43,6 +44,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("Username already exists");
         }
+
+        LOGGER.info("Register User");
         UserRegisterDto registeredUser = userService.registerUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
     }
@@ -62,9 +65,14 @@ public class UserController {
                     new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
             );
             if (authentication.isAuthenticated()) {
-                String token = jwtService.generateToken(user.getUsername());
+                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                String token = jwtService.generateToken(userDetails);
                 Map<String, String> response = new HashMap<>();
                 response.put("token", token);
+                response.put("username", user.getUsername());
+                response.put("role", userDetails.getAuthorities().toString());
+                response.put("expiration", String.valueOf((jwtService.extractExpiration(token)).getTime()));
+                LOGGER.info(response.toString());
                 return  ResponseEntity.ok(response);
             } else {
               return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Credentials");
